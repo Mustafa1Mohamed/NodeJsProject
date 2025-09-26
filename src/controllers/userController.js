@@ -79,7 +79,7 @@ const login = async (req, res) => {
             const userId = founded.docs[0].id
             const role=founded.docs[0].data().role
             const token = jwt.sign({ role, userId }, "secret")
-            res.send({ msg: "Login Success", token })
+            res.json({ msg: "Login Success", token })
         } else {
             res.send("Incorrect Password")
         }
