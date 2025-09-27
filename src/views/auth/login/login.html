@@ -102,7 +102,6 @@
                 showAlert("Please fix the errors before submitting", "danger");
                 return;
             }
-
             fetch("http://localhost:3000/login", {
                 method: "POST",
                 headers: {
@@ -116,9 +115,12 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.msg == "Login Success") {
+                        
+                        localStorage.setItem("token", data.token);
+                        // console.log("Stored token:", localStorage.getItem("token"));
                         showAlert("Login successful! Redirecting...", "success");
                         setTimeout(() => {
-                            window.location.href = "../dashboard/dashboard.html";
+                            // window.location.href = "../dashboard/dashboard.html";
                         }, 2000);
                     } else {
                         showAlert("Login failed. Please try again.", "danger");
@@ -130,6 +132,8 @@
                     showAlert("Something went wrong. Please try again later.", "danger");
                     console.error("Login error:", error);
                 });
+                
+                console.log(localStorage.getItem("token"));
         });
     </script>
 </body>
