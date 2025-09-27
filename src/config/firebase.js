@@ -2,8 +2,8 @@ import admin from "firebase-admin";
 import { readFileSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import dotenv from "dotenv"
-dotenv.config()
+// import dotenv from "dotenv"
+// dotenv.config()
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 const serviceAccount = JSON.parse(
