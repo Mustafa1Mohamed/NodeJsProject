@@ -65,76 +65,88 @@
             alertDiv.textContent = '';
         }
 
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
+        form.addEventListener("submit", async (e) => {
+                e.preventDefault();
 
-            const email = document.getElementById("exampleInputEmail1");
-            const password = document.getElementById("exampleInputPassword1");
+                const email = document.getElementById("exampleInputEmail1");
+                const password = document.getElementById("exampleInputPassword1");
 
-            const emailValue = email.value.trim();
-            const passwordValue = password.value.trim();
+                const emailValue = email.value.trim();
+                const passwordValue = password.value.trim();
 
-            let isValid = true;
+                let isValid = true;
 
-            if (!emailValue) {
-                email.classList.add("is-invalid");
-                email.classList.remove("is-valid");
-                emailErr.textContent = "Please enter your email";
-                isValid = false;
-            } else {
-                email.classList.remove("is-invalid");
-                email.classList.add("is-valid");
-                emailErr.textContent = "";
+                if (!emailValue) {
+                    email.classList.add("is-invalid");
+                    emailErr.textContent = "Please enter your email";
+                    isValid = false;
+                } else {
+                    email.classList.remove("is-invalid");
+                    emailErr.textContent = "";
+                }
+
+                if (!passwordValue) {
+                    password.classList.add("is-invalid");
+                    passErr.textContent = "Please enter your password";
+                    isValid = false;
+                } else {
+                    password.classList.remove("is-invalid");
+                    passErr.textContent = "";
+                }
+
+                if (!isValid) {
+                    showAlert("Please fix the errors before submitting", "danger");
+                    return;
+                }
+
+                async function getUsers(token) {
+                // const token = localStorage.getItem("token");
+
+                const res = await fetch("http://localhost:3000/users", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                const data = await res.json();
+                console.log("Users:", data);
             }
 
-            if (!passwordValue) {
-                password.classList.add("is-invalid");
-                password.classList.remove("is-valid");
-                passErr.textContent = "Please enter your password";
-                isValid = false;
-            } else {
-                password.classList.remove("is-invalid");
-                password.classList.add("is-valid");
-                passErr.textContent = "";
-            }
+                try {
+                    const res = await fetch("http://localhost:3000/login", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            email: emailValue,
+                            password: passwordValue
+                        })
+                    });
 
-            if (!isValid) {
-                showAlert("Please fix the errors before submitting", "danger");
-                return;
-            }
-            fetch("http://localhost:3000/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    email: emailValue,
-                    password: passwordValue
-                })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.msg == "Login Success") {
-                        
+                    const data = await res.json();
+
+                    console.log(data.token);
+
+                    if (data.msg === "Login Success") {
                         localStorage.setItem("token", data.token);
+                        getUsers(data.token)
                         // console.log("Stored token:", localStorage.getItem("token"));
                         showAlert("Login successful! Redirecting...", "success");
                         setTimeout(() => {
                             // window.location.href = "../dashboard/dashboard.html";
                         }, 2000);
                     } else {
-                        showAlert("Login failed. Please try again.", "danger");
+                        showAlert(data.msg || "Login failed. Please try again.", "danger");
                         email.classList.add("is-invalid");
                         password.classList.add("is-invalid");
                     }
-                })
-                .catch(error => {
-                    showAlert("Something went wrong. Please try again later.", "danger");
+                } catch (error) {
                     console.error("Login error:", error);
-                });
-                
-                console.log(localStorage.getItem("token"));
-        });
+                    showAlert("Something went wrong. Please try again later.", "danger");
+                }
+            });
     </script>
 </body>
 

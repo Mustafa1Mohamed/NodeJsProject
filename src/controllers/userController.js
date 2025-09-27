@@ -26,7 +26,8 @@ export const getUserById = async (req, res) => {
 export const createUser = async (req, res) => {
     try {
         const user = await usersCollection.add(req.body);
-        res.send(user);
+        const getNewUser = await usersCollection.doc(user.id).get();
+        res.json(getNewUser.data());
     } catch (error) {
         res.status(500).send(error);
     }
@@ -52,39 +53,49 @@ export const deleteUser = async (req, res) => {
 
 //auth controller
 const signup = async (req, res) => {
-    const { name, email, password } = req.body
-    if(!name || !email || !password) {
-        res.send("Missing Fields")
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+        return res.status(400).json({ msg: "Missing Fields" });
     }
-    let founded = await usersCollection.where("email", "==", email).get()
+
+    let founded = await usersCollection.where("email", "==", email).get();
     if (founded.empty) {
-        let hashedPassword = await bcrypt.hash(password, 8)
-        await usersCollection.add({name, email, password: hashedPassword, role: "user"})
-        res.send("User Created")
+        let hashedPassword = await bcrypt.hash(password, 8);
+        await usersCollection.add({ name, email, password: hashedPassword, role: "user" });
+        return res.status(201).json({ msg: "User Created" });
     } else {
-        res.send("User Already Exists")
+        return res.status(409).json({ msg: "User Already Exists" });
     }
-}
+};
+
 
 const login = async (req, res) => {
-    const { email, password } = req.body
-    let founded = await usersCollection.where("email", "==", email).get()
-    if (founded.empty) {
-        res.send("User Not Found")
-    } else {
-        let user = founded.docs[0].data()
-        let isMatch = await bcrypt.compare(password, user.password)
-        if (isMatch) {
-            //generate token
-            const userId = founded.docs[0].id
-            const role=founded.docs[0].data().role
-            const token = jwt.sign({ role, userId }, "secret")
-            res.json({ msg: "Login Success", token })
-        } else {
-            res.send("Incorrect Password")
-        }
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ msg: "Missing Fields" });
     }
-}
+
+    let founded = await usersCollection.where("email", "==", email).get();
+    if (founded.empty) {
+        return res.status(404).json({ msg: "User Not Found" });
+    }
+
+    let user = founded.docs[0].data();
+    let isMatch = await bcrypt.compare(password, user.password);
+
+    if (isMatch) {
+        const userId = founded.docs[0].id;
+        const role = user.role;
+        const token = jwt.sign({ role, userId }, "secret");
+        res.setHeader("Authorization", `Bearer ${token}`);
+        return res.json({ msg: "Login Success", token });
+    } else {
+        return res.status(401).json({ msg: "Incorrect Password" });
+    }
+};
+
 
 
 

@@ -110,13 +110,11 @@
                 nameErr.textContent = "";
             }
 
-            // Don't continue if form is invalid
             if (!isValid) {
                 showAlert("Please correct the errors before submitting", "danger");
                 return;
             }
 
-            // Form is valid - submit data
             fetch("http://localhost:3000/signup", {
                 method: "POST",
                 headers: {
@@ -124,23 +122,24 @@
                 },
                 body: JSON.stringify({ email: emailValue, password: passwordValue, name: nameValue })
             })
-                .then(res => res.text())
+                .then(res => res.json())
                 .then(data => {
-                    if (data === "User Created") {
+                    if (data.msg === "User Created") {
                         showAlert("Redirecting to login page...", "success");
                         setTimeout(() => {
                             window.location.href = "../login/login.html";
                         }, 2000);
                     } else {
-                        email.classList.remove("is-valid0")
+                        email.classList.remove("is-valid")
                         email.classList.add("is-invalid");
-                        emailErr.textContent = data;
-                        showAlert(data, "danger");
+                        emailErr.textContent = data.msg || "Error creating user";
+                        showAlert(data.msg || "Error creating user", "danger");
                     }
                 })
                 .catch(err => {
                     showAlert("Something went wrong. Please try again.", "danger");
                 });
+
         });
     </script>
 </body>
