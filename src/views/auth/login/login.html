@@ -2,152 +2,159 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-        crossorigin="anonymous"></script>
-    <title>Login</title>
-    <style>
-        .form-data {
-            border: 1px solid #ccc;
-            padding: 20px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+  <title>Login</title>
+  <style>
+    .form-data { border: 1px solid #ccc; padding: 20px; }
+  </style>
 </head>
 
 <body>
-    <div class="container vh-100 d-flex align-items-center justify-content-center">
-        <div class="form-data w-50">
-            <form>
-                <h1 class="text-center text-primary">Login</h1>
-                <div class="alert" role="alert" id="alert"></div>
+  <div class="container vh-100 d-flex align-items-center justify-content-center">
+    <div class="form-data w-50">
+      <form id="loginForm">
+        <h1 class="text-center text-primary">Login</h1>
+        <div class="alert" role="alert" id="alert"></div>
 
-                <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">Email address</label>
-                    <input type="email" class="form-control" id="exampleInputEmail1">
-                    <div class="invalid-feedback emailErr"></div>
-                </div>
-
-                <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="exampleInputPassword1">
-                    <div class="invalid-feedback passErr"></div>
-                </div>
-
-                <p>Don't have an account? <a href="../register/register.html">Sign Up</a></p>
-                <button type="submit" class="btn btn-primary w-100">Submit</button>
-            </form>
+        <div class="mb-3">
+          <label for="emailInput" class="form-label">Email address</label>
+          <input type="email" class="form-control" id="emailInput" autocomplete="username" />
+          <div class="invalid-feedback emailErr"></div>
         </div>
+
+        <div class="mb-3">
+          <label for="passwordInput" class="form-label">Password</label>
+          <input type="password" class="form-control" id="passwordInput" autocomplete="current-password" />
+          <div class="invalid-feedback passErr"></div>
+        </div>
+
+        <p>Don't have an account? <a href="../register/register.html">Sign Up</a></p>
+        <button id="submitBtn" type="submit" class="btn btn-primary w-100">Submit</button>
+      </form>
     </div>
+  </div>
 
-    <script>
-        const form = document.querySelector("form");
-        const alertDiv = document.getElementById("alert");
-        const emailErr = document.querySelector(".emailErr");
-        const passErr = document.querySelector(".passErr");
+  <script>
+    const form = document.getElementById("loginForm");
+    const alertDiv = document.getElementById("alert");
+    const emailErr = document.querySelector(".emailErr");
+    const passErr = document.querySelector(".passErr");
+    const submitBtn = document.getElementById("submitBtn");
 
-        function showAlert(message, type) {
-            alertDiv.className = `alert alert-${type} show`;
-            alertDiv.textContent = message;
+    // لو السيرفر شغال على نفس الهوست استخدم origin؛ غيره لو عندك بورت مختلف
+    const BASE_URL = location.origin.replace(/\/$/, ""); // e.g. http://localhost:3000
+    const LOGIN_URL = BASE_URL + "/login";
+    const REDIRECT_AFTER_LOGIN = "/views/profile/profile.html"; // غيّرها لو حابب
 
-            if (type === 'danger') {
-                setTimeout(() => {
-                    hideAlert();
-                }, 5000);
-            }
+    function showAlert(message, type) {
+      alertDiv.className = `alert alert-${type} show`;
+      alertDiv.textContent = message;
+      if (type === "danger") {
+        setTimeout(hideAlert, 5000);
+      }
+    }
+    function hideAlert() {
+      alertDiv.className = "alert";
+      alertDiv.textContent = "";
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("emailInput");
+      const password = document.getElementById("passwordInput");
+
+      const emailValue = email.value.trim();
+      const passwordValue = password.value.trim();
+
+      let isValid = true;
+
+      if (!emailValue) {
+        email.classList.add("is-invalid");
+        email.classList.remove("is-valid");
+        emailErr.textContent = "Please enter your email";
+        isValid = false;
+      } else {
+        email.classList.remove("is-invalid");
+        email.classList.add("is-valid");
+        emailErr.textContent = "";
+      }
+
+      if (!passwordValue) {
+        password.classList.add("is-invalid");
+        password.classList.remove("is-valid");
+        passErr.textContent = "Please enter your password";
+        isValid = false;
+      } else {
+        password.classList.remove("is-invalid");
+        password.classList.add("is-valid");
+        passErr.textContent = "";
+      }
+
+      if (!isValid) {
+        showAlert("Please fix the errors before submitting", "danger");
+        return;
+      }
+
+      // امنع سبميت متكرر
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Logging in...";
+
+      try {
+        const res = await fetch(LOGIN_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: emailValue, password: passwordValue })
+        });
+
+        // خزّن البودي (نحتاجه حتى لو res مش ok)
+        let data = {};
+        try { data = await res.json(); } catch { data = {}; }
+
+        if (!res.ok) {
+          // جرّب تعرض رسالة السيرفر لو موجودة
+          const serverMsg = data?.message || data?.msg || data?.error || "Login failed. Please try again.";
+          showAlert(serverMsg, "danger");
+          email.classList.add("is-invalid");
+          password.classList.add("is-invalid");
+          return;
         }
 
-        function hideAlert() {
-            alertDiv.className = 'alert';
-            alertDiv.textContent = '';
+        // التوافق مع صيغ مختلفة
+        const okMsg = data?.message || data?.msg || "";
+        const token =
+          data?.token ||
+          data?.accessToken ||
+          data?.data?.token ||
+          null;
+
+        if (!token) {
+          showAlert("Login succeeded but no token returned by server.", "danger");
+          return;
         }
 
-        form.addEventListener("submit", async (e) => {
-                e.preventDefault();
+        // خزن التوكن
+        localStorage.setItem("token", token);
 
-                const email = document.getElementById("exampleInputEmail1");
-                const password = document.getElementById("exampleInputPassword1");
+        showAlert(okMsg || "Login successful! Redirecting...", "success");
+        setTimeout(() => {
+          window.location.href = REDIRECT_AFTER_LOGIN;
+        }, 800);
 
-                const emailValue = email.value.trim();
-                const passwordValue = password.value.trim();
-
-                let isValid = true;
-
-                if (!emailValue) {
-                    email.classList.add("is-invalid");
-                    emailErr.textContent = "Please enter your email";
-                    isValid = false;
-                } else {
-                    email.classList.remove("is-invalid");
-                    emailErr.textContent = "";
-                }
-
-                if (!passwordValue) {
-                    password.classList.add("is-invalid");
-                    passErr.textContent = "Please enter your password";
-                    isValid = false;
-                } else {
-                    password.classList.remove("is-invalid");
-                    passErr.textContent = "";
-                }
-
-                if (!isValid) {
-                    showAlert("Please fix the errors before submitting", "danger");
-                    return;
-                }
-
-                async function getUsers(token) {
-                // const token = localStorage.getItem("token");
-
-                const res = await fetch("http://localhost:3000/users", {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
-                });
-
-                const data = await res.json();
-                console.log("Users:", data);
-            }
-
-                try {
-                    const res = await fetch("http://localhost:3000/login", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            email: emailValue,
-                            password: passwordValue
-                        })
-                    });
-
-                    const data = await res.json();
-
-                    console.log(data.token);
-
-                    if (data.msg === "Login Success") {
-                        localStorage.setItem("token", data.token);
-                        getUsers(data.token)
-                        // console.log("Stored token:", localStorage.getItem("token"));
-                        showAlert("Login successful! Redirecting...", "success");
-                        setTimeout(() => {
-                            // window.location.href = "../dashboard/dashboard.html";
-                        }, 2000);
-                    } else {
-                        showAlert(data.msg || "Login failed. Please try again.", "danger");
-                        email.classList.add("is-invalid");
-                        password.classList.add("is-invalid");
-                    }
-                } catch (error) {
-                    console.error("Login error:", error);
-                    showAlert("Something went wrong. Please try again later.", "danger");
-                }
-            });
-    </script>
+      } catch (error) {
+        console.error("Login error:", error);
+        showAlert("Something went wrong. Please try again later.", "danger");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Submit";
+      }
+    });
+  </script>
 </body>
-
 </html>

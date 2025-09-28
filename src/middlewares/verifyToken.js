@@ -1,22 +1,20 @@
 import jwt from "jsonwebtoken";
 
+const SECRET = process.env.JWT_SECRET || "dev_secret_change_me";
+
 const verifyToken = (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    console.log("from middleware",authHeader);
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return res.status(401).json({ msg: "No token provided" });
-    }
+  let token = req.headers.authorization || "";
+  if (token.startsWith("Bearer ")) token = token.slice(7).trim();
+  if (!token) return res.status(401).json({ msg: "No token provided" });
 
-    const token = authHeader.split(" ")[1];
-
-    jwt.verify(token, "secret", (err, decoded) => {
-        if (err) {
-            return res.status(401).json({ msg: "Invalid Token" });
-        }
-
-        req.user = decoded;
-        next();
-    });
+  try {
+    const decoded = jwt.verify(token, SECRET);
+    // token contains { userId, role, email? }
+    req.myToken = decoded;
+    return next();
+  } catch (err) {
+    return res.status(401).json({ msg: "Invalid Token" });
+  }
 };
 
 export default verifyToken;
