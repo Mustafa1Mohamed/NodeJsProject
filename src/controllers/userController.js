@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 const JWT_SECRET = process.env.JWT_SECRET || "dev_secret_change_me";
 const JWT_EXPIRES = "7d";
 
-// ========== Helpers ==========
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }

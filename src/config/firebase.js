@@ -7,7 +7,7 @@ const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
 const serviceAccount = JSON.parse(
-  readFileSync(path.join(dirname, "servicesAccountKey.json"), "utf-8")
+  readFileSync(path.join(dirname, "./servicesAccountKey.json"))
 );
 
 if (!admin.apps.length) {

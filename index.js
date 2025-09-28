@@ -2,13 +2,13 @@ import "dotenv/config";
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-
+import cors from "cors";
 const app = express();
 
 // Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cors());
 // Static for HTML/CSS/JS
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

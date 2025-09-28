@@ -110,13 +110,11 @@
                 nameErr.textContent = "";
             }
 
-            // Don't continue if form is invalid
             if (!isValid) {
                 showAlert("Please correct the errors before submitting", "danger");
                 return;
             }
 
-            // Form is valid - submit data
             fetch("http://localhost:3000/signup", {
                 method: "POST",
                 headers: {
@@ -124,41 +122,24 @@
                 },
                 body: JSON.stringify({ email: emailValue, password: passwordValue, name: nameValue })
             })
-                .then(res => res.text())
+                .then(res => res.json())
                 .then(data => {
-
-                    // === ADDED: supports JSON response { msg: "Signup Success", token, user } ===
-                    try {
-                        const maybeJson = JSON.parse(data);
-                        if (maybeJson && maybeJson.msg === "Signup Success" && maybeJson.token) {
-                            // store token so user is logged in immediately
-                            localStorage.setItem("token", maybeJson.token);
-                            showAlert("Signup Success! Redirecting...", "success");
-                            setTimeout(() => {
-                                window.location.href = "/views/profile/profile.html";
-                            }, 800);
-                            return; // stop here so the old text-based logic below doesn't run
-                        }
-                    } catch (_) {
-                        // not JSON -> fall back to your original logic below
-                    }
-                    // === END ADDED ===
-
-                    if (data === "User Created") {
+                    if (data.msg === "Signup Success") {
                         showAlert("Redirecting to login page...", "success");
                         setTimeout(() => {
                             window.location.href = "../login/login.html";
                         }, 2000);
                     } else {
-                        email.classList.remove("is-valid0")
+                        email.classList.remove("is-valid")
                         email.classList.add("is-invalid");
-                        emailErr.textContent = data;
-                        showAlert(data, "danger");
+                        emailErr.textContent = data.msg || "Error creating user";
+                        showAlert(data.msg || "Error creating user", "danger");
                     }
                 })
                 .catch(err => {
                     showAlert("Something went wrong. Please try again.", "danger");
                 });
+
         });
     </script>
 </body>
