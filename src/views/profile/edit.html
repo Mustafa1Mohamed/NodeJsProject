@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit Profile</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" />
+</head>
+<body class="bg-dark text-light">
+<div class="container py-4">
+  <h1 class="mb-3">Edit Profile</h1>
+
+  <form id="infoForm" class="card bg-secondary p-3 mb-4" enctype="multipart/form-data">
+    <div class="mb-2">
+      <label class="form-label">Name</label>
+      <input id="name" name="name" class="form-control" />
+    </div>
+    <div class="mb-2">
+      <label class="form-label">Email</label>
+      <input id="email" name="email" type="email" class="form-control" />
+    </div>
+    <div class="mb-2">
+      <label class="form-label">Profile Image</label>
+      <input id="photo" name="photo" type="file" accept="image/*" class="form-control" />
+    </div>
+    <button class="btn btn-success" type="submit">Save</button>
+    <a class="btn btn-outline-light" href="/views/profile/profile.html">Cancel</a>
+  </form>
+
+  <h2 class="mb-3">Change Password</h2>
+  <form id="passForm" class="card bg-secondary p-3">
+    <div class="mb-2">
+      <label class="form-label">Current Password</label>
+      <input id="currentPassword" name="currentPassword" type="password" class="form-control" required />
+    </div>
+    <div class="mb-2">
+      <label class="form-label">New Password (>=6)</label>
+      <input id="newPassword" name="newPassword" type="password" class="form-control" required />
+    </div>
+    <button class="btn btn-warning" type="submit">Update Password</button>
+  </form>
+</div>
+
+<script>
+  const API = location.origin;
+  const token = localStorage.getItem("token");
+  if (!token) location.href = "/views/auth/login/login.html";
+
+  // prefill
+  fetch(API + "/me", { headers: { Authorization: "Bearer " + token }})
+    .then(r => r.json())
+    .then(u => {
+      document.getElementById("name").value = u.name || "";
+      document.getElementById("email").value = u.email || "";
+    });
+
+  // update info (name/email/photo)
+  document.getElementById("infoForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const r = await fetch(API + "/me", {
+      method: "PUT",
+      headers: { Authorization: "Bearer " + token },
+      body: fd
+    });
+    if (r.ok) {
+      alert("Profile updated");
+      location.href = "/views/profile/profile.html";
+    } else {
+      alert(await r.text());
+    }
+  });
+
+  // change password
+  document.getElementById("passForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const payload = {
+      currentPassword: document.getElementById("currentPassword").value,
+      newPassword: document.getElementById("newPassword").value
+    };
+    const r = await fetch(API + "/me/password", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify(payload)
+    });
+    if (r.ok) {
+      alert("Password updated");
+      e.target.reset();
+    } else {
+      alert(await r.text());
+    }
+  });
+</script>
+</body>
+</html>
