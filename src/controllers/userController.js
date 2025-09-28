@@ -85,7 +85,7 @@ const signup = async (req, res) => {
       return res.status(400).json({ msg: "name, email, password required" });
     }
 
-    const found = await usersCollection.where("email", "==", email).limit(1).get();
+    const found = await usersCollection.where("email", "==", email).get();
     if (!found.empty) {
       return res.status(409).json({ msg: "Email already registered" });
     }
