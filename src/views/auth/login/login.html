@@ -132,10 +132,9 @@
                 if (data.msg === "Login Success") {
                     localStorage.setItem("token", data.token);
                     getUsers(data.token)
-                    // console.log("Stored token:", localStorage.getItem("token"));
                     showAlert("Login successful! Redirecting...", "success");
                     setTimeout(() => {
-                        window.location.href = "../../profile/profile.html";
+                        // window.location.href = "../../profile/profile.html";
                     }, 2000);
                 } else {
                     showAlert(data.msg || "Login failed. Please try again.", "danger");

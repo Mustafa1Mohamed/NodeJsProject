@@ -124,7 +124,7 @@
             })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.msg === "Signup Success") {
+                    if (data.msg === "User Created") {
                         showAlert("Redirecting to login page...", "success");
                         setTimeout(() => {
                             window.location.href = "../login/login.html";
