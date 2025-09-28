@@ -52,12 +52,10 @@
         function showAlert(message, type) {
             alertDiv.className = `alert alert-${type} show`;
             alertDiv.textContent = message;
-
-            if (type === 'danger') {
                 setTimeout(() => {
                     hideAlert();
                 }, 5000);
-            }
+            
         }
 
         function hideAlert() {
