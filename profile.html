@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Profile</title>
+    <link rel="stylesheet" href="home.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <h1 class="logo">MySocial</h1>
+      <a href="index.html" class="back-btn">← Back</a>
+    </nav>
+
+    <div class="profile-page">
+      <img
+        src="https://i.pravatar.cc/100?img=3"
+        class="avatar-large"
+        alt="Profile"
+      />
+      <h2 id="profileName">Ibrahim</h2>
+      <p>Email: ibrahim@example.com</p>
+      <button onclick="logout()">Log Out</button>
+    </div>
+
+    <script>
+      function logout() {
+        alert("You logged out!");
+        window.location.href = "index.html";
+      }
+    </script>
+  </body>
+</html>

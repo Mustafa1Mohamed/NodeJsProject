@@ -1,14 +1,37 @@
 import { Router } from "express";
 import userController from "../controllers/userController.js";
 import verifyToken from "../middlewares/verifyToken.js";
+import checkRole from "../middlewares/checkRole.js";
+
 const userRoutes = Router();
 
-userRoutes.get("/users", verifyToken, userController.getAllUsers);
+// Admin فقط يقدر يشوف كل اليوزرز
+userRoutes.get(
+  "/users",
+  verifyToken,
+  checkRole(["admin"]),
+  userController.getAllUsers
+);
+
+// Admin أو صاحب الحساب يقدر يشوف بيانات يوزر معين
 userRoutes.get("/users/:id", verifyToken, userController.getUserById);
-userRoutes.post("/users", userController.createUser);
-userRoutes.put("/users/:id", verifyToken, userController.updateUser);
-userRoutes.delete("/users/:id", verifyToken, userController.deleteUser);
+
+// Signup/Login مفتوح للجميع
 userRoutes.post("/signup", userController.signup);
 userRoutes.post("/login", userController.login);
+
+// Admin فقط يقدر يعدل أو يمسح أي يوزر
+userRoutes.put(
+  "/users/:id",
+  verifyToken,
+  checkRole(["admin"]),
+  userController.updateUser
+);
+userRoutes.delete(
+  "/users/:id",
+  verifyToken,
+  checkRole(["admin"]),
+  userController.deleteUser
+);
 
 export default userRoutes;

@@ -1,9 +1,34 @@
 import express from "express";
-import userRoutes from "./src/routes/userRoutes.js";
 import cors from "cors";
+import postRoutes from "./src/routes/postRoutes.js";
+import dotenv from "dotenv";
+
+dotenv.config();
+
 const app = express();
-app.port = 3000
-app.use(cors());
+const PORT = process.env.PORT || 3000;
+
 app.use(express.json());
-app.use(userRoutes)
-app.listen(app.port, () => console.log(`Server running on port ${app.port}`));
+
+app.use(
+  cors({
+    origin: "http://127.0.0.1:5500",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
+
+app.use("/posts", postRoutes);
+
+app.get("/", (req, res) => {
+  res.send("API is running...");
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ msg: "Server error" });
+});
+
+app.listen(PORT, () => {
+  console.log(`✅ Server is running on http://localhost:${PORT}`);
+});

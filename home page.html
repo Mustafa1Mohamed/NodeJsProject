@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mini Facebook</title>
+    <link rel="stylesheet" href="home.css" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="logo">MiniFacebook</div>
+      <div class="profile">
+        <img
+          id="profilePic"
+          src="https://i.pravatar.cc/40?img=3"
+          alt="profile"
+        />
+        <span id="profileName">Ibrahim</span>
+      </div>
+    </nav>
+
+    <!-- New Post Box -->
+    <div class="new-post">
+      <textarea
+        id="newPostContent"
+        placeholder="What's on your mind?"
+      ></textarea>
+      <div class="actions">
+        <input type="file" id="newPostFile" accept="image/*,video/*" />
+        <button id="postBtn" onclick="createPost()">Post</button>
+      </div>
+    </div>
+
+    <!-- Posts Feed -->
+    <div id="postsContainer" class="posts"></div>
+    <script src="app.js" defer></script>
+  </body>
+</html>
