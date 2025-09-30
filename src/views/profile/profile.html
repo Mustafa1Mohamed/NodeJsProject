@@ -86,7 +86,7 @@
           </div>
         </div>
         <div class="mt-3">
-          <a class="btn btn-baby" href="/views/profile/edit.html"
+          <a class="btn btn-baby" href="./edit.html"
             >Edit Profile</a
           >
         </div>
@@ -94,19 +94,19 @@
     </div>
 
     <script>
-      const API = location.origin; // e.g. http://localhost:3000
+      // const API = location.origin; // e.g. http://localhost:3000
       const token = localStorage.getItem("token");
 
       function logout() {
         localStorage.removeItem("token");
-        window.location.href = "/views/auth/login/login.html";
+        window.location.href = "../auth/login/login.html";
       }
 
       if (!token) {
-        window.location.href = "/views/auth/login/login.html";
+        window.location.href = "../auth/login/login.html";
       }
 
-      fetch(API + "/me", {
+      fetch("http://localhost:3000/me", {
         headers: { Authorization: "Bearer " + token },
       })
         .then((r) => (r.ok ? r.json() : Promise.reject(r)))

@@ -134,12 +134,19 @@
                     getUsers(data.token)
                     showAlert("Login successful! Redirecting...", "success");
                     setTimeout(() => {
-                        // window.location.href = "../../profile/profile.html";
-                        window.location.href = "/views/profile/profile.html"; // ← added
+                        window.location.href = "../../profile/profile.html";
                     }, 2000);
-                } else {
+                } else if(data.msg==='User Not Found') {
+                    showAlert("User not found. Please try again.", "danger");
+                    email.classList.add("is-invalid");
+                }
+                else if(data.msg==='Incorrect Password') {
+                    showAlert("Incorrect password. Please try again.", "danger");
+                    password.classList.add("is-invalid");
+                }
+                else  {
                     showAlert(data.msg || "Login failed. Please try again.", "danger");
-                    email.classList.add("is-invalid");7
+                    email.classList.add("is-invalid");
                     password.classList.add("is-invalid");
                 }
             } catch (error) {

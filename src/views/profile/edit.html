@@ -73,7 +73,7 @@
     </div>
     <div class="d-flex gap-2">
       <button class="btn btn-baby" type="submit">Save</button>
-      <a class="btn btn-outline-baby" href="/views/profile/profile.html">Back</a>
+      <a class="btn btn-outline-baby" href="./profile.html">Back</a>
     </div>
   </form>
 </div>
@@ -81,7 +81,7 @@
 <!-- Supabase JS v2 -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const API = location.origin;
+  // const API = location.origin;
   const token = localStorage.getItem("token");
   if (!token) location.href = "/views/auth/login/login.html";
 
@@ -93,7 +93,7 @@
   // ====================================
 
   // Prefill from /me
-  fetch(API + "/me", { headers: { Authorization: "Bearer " + token }})
+  fetch("http://localhost:3000/me", { headers: { Authorization: "Bearer " + token }})
     .then(r => r.json())
     .then(u => {
       document.getElementById("name").value = u.name || "";
@@ -144,7 +144,7 @@
       const payload = { name, email };
       if (photoURL) payload.photoURL = photoURL;
 
-      const r = await fetch(API + "/me", {
+      const r = await fetch("http://localhost:3000/me", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -155,7 +155,7 @@
 
       if (r.ok) {
         alert("Profile updated");
-        location.href = "/views/profile/profile.html";
+        // location.href = "/views/profile/profile.html";
       } else {
         alert(await r.text());
       }
