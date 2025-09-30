@@ -4,12 +4,60 @@
   <meta charset="UTF-8" />
   <title>Edit Profile</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" />
+  <style>
+    :root{
+      --baby-bg: #f7fbff;
+      --baby-card: #eaf5ff;
+      --baby-border: #d5eaff;
+      --baby-primary: #56a9ff;
+      --baby-primary-hover: #3d97fb;
+      --baby-outline: #56a9ff;
+      --text-main: #0b2239;
+    }
+    body{
+      background: linear-gradient(180deg, #ffffff, var(--baby-bg));
+      color: var(--text-main);
+      min-height: 100vh;
+    }
+    .page-title{
+      color: var(--text-main);
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+    .card-baby{
+      background: var(--baby-card);
+      border: 1px solid var(--baby-border);
+      border-radius: 14px;
+    }
+    .btn-baby{
+      background: var(--baby-primary);
+      border-color: var(--baby-primary);
+      color: #fff;
+    }
+    .btn-baby:hover{
+      background: var(--baby-primary-hover);
+      border-color: var(--baby-primary-hover);
+      color: #fff;
+    }
+    .btn-outline-baby{
+      color: var(--baby-outline);
+      border-color: var(--baby-outline);
+      background: #fff;
+    }
+    .btn-outline-baby:hover{
+      color: #fff;
+      background: var(--baby-outline);
+      border-color: var(--baby-outline);
+    }
+    .form-label{ font-weight: 600; }
+  </style>
 </head>
-<body class="bg-dark text-light">
+<body>
 <div class="container py-4">
-  <h1 class="mb-3">Edit Profile</h1>
+  <h1 class="mb-3 page-title">Edit Profile</h1>
 
-  <form id="infoForm" class="card bg-secondary p-3 mb-4" enctype="multipart/form-data">
+  <!-- Update info ONLY (no change-password section) -->
+  <form id="infoForm" class="card card-baby p-3 mb-4 shadow-sm">
     <div class="mb-2">
       <label class="form-label">Name</label>
       <input id="name" name="name" class="form-control" />
@@ -19,33 +67,32 @@
       <input id="email" name="email" type="email" class="form-control" />
     </div>
     <div class="mb-2">
-      <label class="form-label">Profile Image</label>
+      <label class="form-label">Profile Image (Supabase)</label>
       <input id="photo" name="photo" type="file" accept="image/*" class="form-control" />
+      <small class="text-muted">Uploads to Supabase Storage (bucket: avatars)</small>
     </div>
-    <button class="btn btn-success" type="submit">Save</button>
-    <a class="btn btn-outline-light" href="/views/profile/profile.html">Cancel</a>
-  </form>
-
-  <h2 class="mb-3">Change Password</h2>
-  <form id="passForm" class="card bg-secondary p-3">
-    <div class="mb-2">
-      <label class="form-label">Current Password</label>
-      <input id="currentPassword" name="currentPassword" type="password" class="form-control" required />
+    <div class="d-flex gap-2">
+      <button class="btn btn-baby" type="submit">Save</button>
+      <a class="btn btn-outline-baby" href="/views/profile/profile.html">Back</a>
     </div>
-    <div class="mb-2">
-      <label class="form-label">New Password (>=6)</label>
-      <input id="newPassword" name="newPassword" type="password" class="form-control" required />
-    </div>
-    <button class="btn btn-warning" type="submit">Update Password</button>
   </form>
 </div>
 
+<!-- Supabase JS v2 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const API = location.origin;
   const token = localStorage.getItem("token");
   if (!token) location.href = "/views/auth/login/login.html";
 
-  // prefill
+  // ======= YOUR SUPABASE CONFIG =======
+  const SUPABASE_URL = "https://erhljqtkkbhkmuystzcf.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyaGxqcXRra2Joa211eXN0emNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNzg2ODksImV4cCI6MjA3NDc1NDY4OX0.E1iSxOH782EX2dCmS2xCw5o6Co_vlYlmsA578ZH35YI";
+  const BUCKET = "avatars";
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // ====================================
+
+  // Prefill from /me
   fetch(API + "/me", { headers: { Authorization: "Bearer " + token }})
     .then(r => r.json())
     .then(u => {
@@ -53,43 +100,68 @@
       document.getElementById("email").value = u.email || "";
     });
 
-  // update info (name/email/photo)
+  // unique path for storage (IMPORTANT: no "avatars/" prefix here)
+  function uniquePath(originalName = "avatar.jpg") {
+    const safe = originalName.replace(/\s+/g, "_");
+    return `${Date.now()}_${Math.random().toString(36).slice(2)}_${safe}`;
+  }
+
+  // Update info (name/email + optional supabase image)
   document.getElementById("infoForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const fd = new FormData(e.target);
-    const r = await fetch(API + "/me", {
-      method: "PUT",
-      headers: { Authorization: "Bearer " + token },
-      body: fd
-    });
-    if (r.ok) {
-      alert("Profile updated");
-      location.href = "/views/profile/profile.html";
-    } else {
-      alert(await r.text());
-    }
-  });
+    try {
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const fileInput = document.getElementById("photo");
+      const file = fileInput.files?.[0];
 
-  // change password
-  document.getElementById("passForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const payload = {
-      currentPassword: document.getElementById("currentPassword").value,
-      newPassword: document.getElementById("newPassword").value
-    };
-    const r = await fetch(API + "/me/password", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token
-      },
-      body: JSON.stringify(payload)
-    });
-    if (r.ok) {
-      alert("Password updated");
-      e.target.reset();
-    } else {
-      alert(await r.text());
+      let photoURL = null;
+
+      if (file) {
+        if (file.size > 2 * 1024 * 1024) {
+          alert("Max image size is 2MB");
+          return;
+        }
+
+        // 1) Upload to Supabase Storage
+        const path = uniquePath(file.name); // don't prefix with "avatars/"
+        const { data: uploadData, error: uploadError } = await supabase
+          .storage
+          .from(BUCKET)             // BUCKET = "avatars"
+          .upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
+
+        if (uploadError) {
+          alert("Upload error: " + uploadError.message);
+          return;
+        }
+
+        // 2) Get public URL
+        const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path);
+        photoURL = pub?.publicUrl || null;
+      }
+
+      // 3) Send JSON to backend (PUT /me)
+      const payload = { name, email };
+      if (photoURL) payload.photoURL = photoURL;
+
+      const r = await fetch(API + "/me", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (r.ok) {
+        alert("Profile updated");
+        location.href = "/views/profile/profile.html";
+      } else {
+        alert(await r.text());
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong while updating profile");
     }
   });
 </script>
