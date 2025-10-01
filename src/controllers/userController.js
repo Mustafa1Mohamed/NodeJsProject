@@ -36,6 +36,10 @@ export const createUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ msg: "Access denied. Admins only." });
+    }
+
     const user = await usersCollection.doc(req.params.id).update(req.body);
     res.send(user);
   } catch (error) {
@@ -45,6 +49,10 @@ export const updateUser = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
   try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ msg: "Access denied. Admins only." });
+    }
+
     const user = await usersCollection.doc(req.params.id).delete();
     res.send(user);
   } catch (error) {
@@ -63,13 +71,18 @@ const signup = async (req, res) => {
   let founded = await usersCollection.where("email", "==", email).get();
   if (founded.empty) {
     let hashedPassword = await bcrypt.hash(password, 8);
-    await usersCollection.add({ name, email, password: hashedPassword, role: "user" });
+
+    await usersCollection.add({
+      name,
+      email,
+      password: hashedPassword,
+      role: "user",
+    });
     return res.status(201).json({ msg: "User Created" });
   } else {
     return res.status(409).json({ msg: "User Already Exists" });
   }
 };
-
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -89,16 +102,13 @@ const login = async (req, res) => {
   if (isMatch) {
     const userId = founded.docs[0].id;
     const role = user.role;
-    const token = jwt.sign({ role, userId }, "secret");
+    const token = jwt.sign({ role, userId }, "secret", { expiresIn: "7d" });
     res.setHeader("Authorization", `Bearer ${token}`);
     return res.json({ msg: "Login Success", token });
   } else {
     return res.status(401).json({ msg: "Incorrect Password" });
   }
 };
-
-
-
 
 export default {
   getAllUsers,
@@ -107,5 +117,5 @@ export default {
   updateUser,
   deleteUser,
   signup,
-  login
+  login,
 };
