@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mini Facebook</title>
+    <link rel="stylesheet" href="home.css" />
+  </head>
+  <body>
+    <!-- Top Navbar -->
+    <nav class="navbar">
+      <div class="nav-left">
+        <div class="logo">f</div>
+        <input type="text" placeholder="Search Facebook" class="search-box" />
+      </div>
+      <div class="nav-center">
+        <a href="#" class="active">🏠</a>
+        <a href="#">🎥</a>
+        <a href="#">🛒</a>
+        <a href="#">👥</a>
+        <a href="#">🕹️</a>
+      </div>
+      <div class="nav-right">
+        <div class="profile">
+          <a href="../profile/profile.html"
+            ><img
+              id="profilePic"
+              src="https://i.pravatar.cc/40?img=3"
+              alt="profile"
+          /></a>
+          <span id="profileName">Ibrahim</span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Page Layout -->
+    <div class="container">
+      <!-- Left Sidebar -->
+      <aside class="sidebar left">
+        <ul>
+          <li>👤 Profile</li>
+          <li>👥 Friends</li>
+        
+        </ul>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main">
+        <!-- New Post Box -->
+        <div class="new-post">
+          <div class="new-post-header">
+            <img
+              src="https://i.pravatar.cc/40?img=3"
+              alt="profile"
+              class="avatar"
+            />
+            <textarea
+              id="newPostContent"
+              placeholder="What's on your mind, Ibrahim?"
+            ></textarea>
+          </div>
+          <div class="actions">
+            <input type="file" id="newPostFile" accept="image/*,video/*" />
+            <button id="postBtn" onclick="createPost()">Post</button>
+          </div>
+        </div>
+
+        <!-- Edit Post Box -->
+        <div class="edit-post" id="editForm" style="display: none">
+          <h3>Edit Post</h3>
+          <textarea id="editContent" placeholder="Edit your content"></textarea>
+          <input type="file" id="editFile" accept="image/*,video/*" />
+          <div class="actions">
+            <button
+              onclick="updatePost(document.getElementById('editForm').dataset.id)"
+            >
+              Save
+            </button>
+            <button onclick="cancelEdit()">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Posts Feed -->
+        <div id="postsContainer" class="posts"></div>
+      </main>
+    <script src="app.js" defer></script>
+  </body>
+</html>

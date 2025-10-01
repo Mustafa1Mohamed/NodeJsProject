@@ -13,7 +13,8 @@ const serviceAccount = JSON.parse(
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    storageBucket: process.env.FIREBASE_BUCKET || "buy-it-68dd3.appspot.com",
+    // ✅ لازم يكون نفس اسم الـ bucket من Firebase console → Storage
+    storageBucket: "buy-it-68dd3.appspot.com",
   });
 }
 
