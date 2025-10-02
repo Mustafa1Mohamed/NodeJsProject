@@ -41,15 +41,15 @@ export const createPost = async (req, res) => {
       });
 
       // Direct download link
-      imageUrl = `https://firebasestorage.googleapis.com/v0/b/${
-        bucket.name
-      }/o/${encodeURIComponent(fileName)}?alt=media`;
+      imageUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(
+        fileName
+      )}?alt=media`;
     }
 
     const newPost = {
       content,
       imageUrl,
-      authorId: req.user.userId,
+      authorId: req.user.userId, // ثابتة كما هي
       createdAt: new Date().toISOString(),
     };
 
@@ -73,12 +73,18 @@ export const updatePost = async (req, res) => {
 
     if (!doc.exists) return res.status(404).json({ msg: "Post not found" });
 
-    // Ensure only the author can update the post
-    if (doc.data().authorId !== req.user.userId) {
+    // ===== Allow owner OR admin =====
+    const post = doc.data();
+    const authorId = post.authorId;
+    const jwtUserId = req.user.userId;
+    const role = String(req.user?.role || "").toLowerCase();
+
+    if (authorId !== jwtUserId && role !== "admin") {
       return res
         .status(403)
         .json({ msg: "You are not allowed to edit this post" });
     }
+    // =================================
 
     let updateData = { updatedAt: new Date().toISOString() };
 
@@ -94,9 +100,9 @@ export const updatePost = async (req, res) => {
         public: true,
       });
 
-      updateData.imageUrl = `https://firebasestorage.googleapis.com/v0/b/${
-        bucket.name
-      }/o/${encodeURIComponent(fileName)}?alt=media`;
+      updateData.imageUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(
+        fileName
+      )}?alt=media`;
     }
 
     await docRef.update(updateData);
@@ -117,12 +123,18 @@ export const deletePost = async (req, res) => {
 
     if (!doc.exists) return res.status(404).json({ msg: "Post not found" });
 
-    // Ensure only the author can delete the post
-    if (doc.data().authorId !== req.user.userId) {
+    // ===== Allow owner OR admin =====
+    const post = doc.data();
+    const authorId = post.authorId;
+    const jwtUserId = req.user.userId;
+    const role = String(req.user?.role || "").toLowerCase();
+
+    if (authorId !== jwtUserId && role !== "admin") {
       return res
         .status(403)
         .json({ msg: "You are not allowed to delete this post" });
     }
+    // =================================
 
     await docRef.delete();
 

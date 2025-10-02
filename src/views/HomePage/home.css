@@ -67,13 +67,22 @@ body {
   border-radius: 50%;
 }
 
-/* Layout */
+/* ===== Layout (center the feed) ===== */
 .container {
   display: flex;
-  margin-top: 15px;
+  justify-content: center;  /* center children horizontally */
+  gap: 24px;
+  margin: 15px auto 0;
   padding: 0 20px;
+  max-width: 1200px;        /* overall page width */
 }
 
+/* hide the empty left sidebar so it doesn't push the feed */
+.sidebar.left { 
+  display: none; 
+}
+
+/* keep generic sidebar rules for future right sidebar if needed */
 .sidebar {
   width: 20%;
   padding: 10px;
@@ -90,10 +99,12 @@ body {
   cursor: pointer;
 }
 
+/* center + constrain the main feed column */
 .main {
-  flex: 1;
-  max-width: 600px;
-  margin: 0 auto;
+  flex: 0 1 680px;          /* readable column width */
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;           /* ensure centering */
 }
 
 /* New Post */
@@ -138,12 +149,19 @@ body {
 }
 
 /* Posts */
+.posts {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;                 /* spacing between posts */
+}
+
 .posts .post {
   background: #fff;
-  margin-bottom: 15px;
+  margin: 0 auto;            /* keep each post centered inside column */
   padding: 15px;
   border-radius: 10px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: 100%;
 }
 
 .post-header {
@@ -157,86 +175,13 @@ body {
 }
 
 .post-media img,
-.post-media video {
+.post-media video,
+.post-img {
   width: 100%;
   border-radius: 8px;
   margin-top: 10px;
-}
-
-.post-actions button {
-  margin-right: 10px;
-  background: none;
-  border: none;
-  color: #1877f2;
-  cursor: pointer;
-}
-
-/* Right Sidebar */
-.sidebar.right h4 {
-  margin-bottom: 10px;
-}
-body {
-  background-color: #f0f2f5;
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 20px 0;
-}
-
-.container {
-  max-width: 600px;
-  margin: auto;
-}
-
-h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.new-post,
-.edit-form {
-  background-color: #fff;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.new-post textarea,
-.edit-form textarea {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  resize: none;
-  margin-bottom: 10px;
-  font-size: 14px;
-}
-
-.new-post button,
-.edit-form button {
-  padding: 8px 15px;
-  background-color: #1877f2;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-right: 5px;
-}
-
-.new-post button:hover,
-.edit-form button:hover {
-  background-color: #155db2;
-}
-
-.post-content {
-  margin-bottom: 10px;
-  word-wrap: break-word;
-}
-
-.post-image {
-  width: 100%;
-  border-radius: 10px;
-  margin-bottom: 10px;
+  display: block;
+  object-fit: cover;
 }
 
 .post-actions {
@@ -255,4 +200,9 @@ h2 {
 
 .post-actions button:hover {
   background-color: #d8dadf;
+}
+
+/* Right Sidebar (if you add it later) */
+.sidebar.right h4 {
+  margin-bottom: 10px;
 }

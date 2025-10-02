@@ -53,117 +53,156 @@
   </style>
 </head>
 <body>
-<div class="container py-4">
-  <h1 class="mb-3 page-title">Edit Profile</h1>
 
-  <!-- Update info ONLY (no change-password section) -->
-  <form id="infoForm" class="card card-baby p-3 mb-4 shadow-sm">
-    <div class="mb-2">
-      <label class="form-label">Name</label>
-      <input id="name" name="name" class="form-control" />
-    </div>
-    <div class="mb-2">
-      <label class="form-label">Email</label>
-      <input id="email" name="email" type="email" class="form-control" />
-    </div>
-    <div class="mb-2">
-      <label class="form-label">Profile Image (Supabase)</label>
-      <input id="photo" name="photo" type="file" accept="image/*" class="form-control" />
-      <small class="text-muted">Uploads to Supabase Storage (bucket: avatars)</small>
-    </div>
-    <div class="d-flex gap-2">
-      <button class="btn btn-baby" type="submit">Save</button>
-      <a class="btn btn-outline-baby" href="./profile.html">Back</a>
-    </div>
-  </form>
-</div>
+  <!-- Global Navbar inject point -->
+  <div id="navbar-root"></div>
 
-<!-- Supabase JS v2 -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  // const API = location.origin;
-  const token = localStorage.getItem("token");
-  if (!token) location.href = "/views/auth/login/login.html";
+  <div class="container py-4">
+    <h1 class="mb-3 page-title">Edit Profile</h1>
 
-  // ======= YOUR SUPABASE CONFIG =======
-  const SUPABASE_URL = "https://erhljqtkkbhkmuystzcf.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyaGxqcXRra2Joa211eXN0emNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNzg2ODksImV4cCI6MjA3NDc1NDY4OX0.E1iSxOH782EX2dCmS2xCw5o6Co_vlYlmsA578ZH35YI";
-  const BUCKET = "avatars";
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  // ====================================
+    <!-- Update info ONLY (no change-password section) -->
+    <form id="infoForm" class="card card-baby p-3 mb-4 shadow-sm">
+      <div class="mb-2">
+        <label class="form-label">Name</label>
+        <input id="name" name="name" class="form-control" />
+      </div>
+      <div class="mb-2">
+        <label class="form-label">Email</label>
+        <input id="email" name="email" type="email" class="form-control" />
+      </div>
+      <div class="mb-2">
+        <label class="form-label">Profile Image (Supabase)</label>
+        <input id="photo" name="photo" type="file" accept="image/*" class="form-control" />
+        <small class="text-muted">Uploads to Supabase Storage (bucket: avatars)</small>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-baby" type="submit">Save</button>
+        <a class="btn btn-outline-baby" href="./profile.html">Back</a>
+      </div>
+    </form>
+  </div>
 
-  // Prefill from /me
-  fetch("http://localhost:3000/me", { headers: { Authorization: "Bearer " + token }})
-    .then(r => r.json())
-    .then(u => {
-      document.getElementById("name").value = u.name || "";
-      document.getElementById("email").value = u.email || "";
-    });
+  <!-- Supabase JS v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // const API = location.origin;
+    const token = localStorage.getItem("token");
+    if (!token) location.href = "/views/auth/login/login.html";
 
-  // unique path for storage (IMPORTANT: no "avatars/" prefix here)
-  function uniquePath(originalName = "avatar.jpg") {
-    const safe = originalName.replace(/\s+/g, "_");
-    return `${Date.now()}_${Math.random().toString(36).slice(2)}_${safe}`;
-  }
+    // ======= YOUR SUPABASE CONFIG =======
+    const SUPABASE_URL = "https://erhljqtkkbhkmuystzcf.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyaGxqcXRra2Joa211eXN0emNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNzg2ODksImV4cCI6MjA3NDc1NDY4OX0.E1iSxOH782EX2dCmS2xCw5o6Co_vlYlmsA578ZH35YI";
+    const BUCKET = "avatars";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // ====================================
 
-  // Update info (name/email + optional supabase image)
-  document.getElementById("infoForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    try {
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const fileInput = document.getElementById("photo");
-      const file = fileInput.files?.[0];
-
-      let photoURL = null;
-
-      if (file) {
-        if (file.size > 2 * 1024 * 1024) {
-          alert("Max image size is 2MB");
-          return;
-        }
-
-        // 1) Upload to Supabase Storage
-        const path = uniquePath(file.name); // don't prefix with "avatars/"
-        const { data: uploadData, error: uploadError } = await supabase
-          .storage
-          .from(BUCKET)             // BUCKET = "avatars"
-          .upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
-
-        if (uploadError) {
-          alert("Upload error: " + uploadError.message);
-          return;
-        }
-
-        // 2) Get public URL
-        const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path);
-        photoURL = pub?.publicUrl || null;
-      }
-
-      // 3) Send JSON to backend (PUT /me)
-      const payload = { name, email };
-      if (photoURL) payload.photoURL = photoURL;
-
-      const r = await fetch("http://localhost:3000/me", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token
-        },
-        body: JSON.stringify(payload)
+    // Prefill from /me
+    fetch("http://localhost:3000/me", { headers: { Authorization: "Bearer " + token }})
+      .then(r => r.json())
+      .then(u => {
+        document.getElementById("name").value = u.name || "";
+        document.getElementById("email").value = u.email || "";
       });
 
-      if (r.ok) {
-        alert("Profile updated");
-        // location.href = "/views/profile/profile.html";
-      } else {
-        alert(await r.text());
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Something went wrong while updating profile");
+    // unique path for storage (IMPORTANT: no "avatars/" prefix here)
+    function uniquePath(originalName = "avatar.jpg") {
+      const safe = originalName.replace(/\s+/g, "_");
+      return `${Date.now()}_${Math.random().toString(36).slice(2)}_${safe}`;
     }
-  });
-</script>
+
+    // Update info (name/email + optional supabase image)
+    document.getElementById("infoForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const fileInput = document.getElementById("photo");
+        const file = fileInput.files?.[0];
+
+        let photoURL = null;
+
+        if (file) {
+          if (file.size > 2 * 1024 * 1024) {
+            alert("Max image size is 2MB");
+            return;
+          }
+
+          // 1) Upload to Supabase Storage
+          const path = uniquePath(file.name); // don't prefix with "avatars/"
+          const { data: uploadData, error: uploadError } = await supabase
+            .storage
+            .from(BUCKET)             // BUCKET = "avatars"
+            .upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
+
+          if (uploadError) {
+            alert("Upload error: " + uploadError.message);
+            return;
+          }
+
+          // 2) Get public URL
+          const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path);
+          photoURL = pub?.publicUrl || null;
+        }
+
+        // 3) Send JSON to backend (PUT /me)
+        const payload = { name, email };
+        if (photoURL) payload.photoURL = photoURL;
+
+        const r = await fetch("http://localhost:3000/me", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (r.ok) {
+          alert("Profile updated");
+          // location.href = "/views/profile/profile.html";
+        } else {
+          alert(await r.text());
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Something went wrong while updating profile");
+      }
+    });
+  </script>
+
+  <!-- Global navbar -->
+  <script src="../shared/navbar.js" defer></script>
+
+  <!-- Override navbar targets for files inside /profile/ -->
+  <script>
+    // make Home go to ../HomePage/home%20page.html
+    // and username go to ./profile.html for this folder
+    function overrideNavbarTargets() {
+      const home = document.getElementById("navHome");
+      const userBtn = document.getElementById("navUsername");
+
+      if (home) {
+        const h = home.cloneNode(true);
+        home.parentNode.replaceChild(h, home);
+        h.addEventListener("click", () => {
+          window.location.href = "../HomePage/home%20page.html";
+        });
+      }
+
+      if (userBtn) {
+        const u = userBtn.cloneNode(true);
+        userBtn.parentNode.replaceChild(u, userBtn);
+        u.addEventListener("click", () => {
+          window.location.href = "./profile.html";
+        });
+      }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => setTimeout(overrideNavbarTargets, 0));
+    } else {
+      setTimeout(overrideNavbarTargets, 0);
+    }
+  </script>
 </body>
 </html>

@@ -7,42 +7,13 @@
     <link rel="stylesheet" href="home.css" />
   </head>
   <body>
-    <!-- Top Navbar -->
-    <nav class="navbar">
-      <div class="nav-left">
-        <div class="logo">f</div>
-        <input type="text" placeholder="Search Facebook" class="search-box" />
-      </div>
-      <div class="nav-center">
-        <a href="#" class="active">🏠</a>
-        <a href="#">🎥</a>
-        <a href="#">🛒</a>
-        <a href="#">👥</a>
-        <a href="#">🕹️</a>
-      </div>
-      <div class="nav-right">
-        <div class="profile">
-          <a href="../profile/profile.html"
-            ><img
-              id="profilePic"
-              src="https://i.pravatar.cc/40?img=3"
-              alt="profile"
-          /></a>
-          <span id="profileName">Ibrahim</span>
-        </div>
-      </div>
-    </nav>
+    <!-- Global Navbar inject point -->
+    <div id="navbar-root"></div>
 
     <!-- Page Layout -->
     <div class="container">
-      <!-- Left Sidebar -->
-      <aside class="sidebar left">
-        <ul>
-          <li>👤 Profile</li>
-          <li>👥 Friends</li>
-        
-        </ul>
-      </aside>
+      <!-- Left Sidebar (kept for layout, items removed as requested) -->
+      <aside class="sidebar left"></aside>
 
       <!-- Main Content -->
       <main class="main">
@@ -56,7 +27,7 @@
             />
             <textarea
               id="newPostContent"
-              placeholder="What's on your mind, Ibrahim?"
+              placeholder="What's on your mind?"
             ></textarea>
           </div>
           <div class="actions">
@@ -71,11 +42,7 @@
           <textarea id="editContent" placeholder="Edit your content"></textarea>
           <input type="file" id="editFile" accept="image/*,video/*" />
           <div class="actions">
-            <button
-              onclick="updatePost(document.getElementById('editForm').dataset.id)"
-            >
-              Save
-            </button>
+            <button onclick="updatePost(document.getElementById('editForm').dataset.id)">Save</button>
             <button onclick="cancelEdit()">Cancel</button>
           </div>
         </div>
@@ -83,6 +50,10 @@
         <!-- Posts Feed -->
         <div id="postsContainer" class="posts"></div>
       </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../shared/navbar.js" defer></script>
     <script src="app.js" defer></script>
   </body>
 </html>
