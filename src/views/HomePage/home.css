@@ -183,7 +183,9 @@ body {
   display: block;
   object-fit: cover;
 }
-
+.profileimg{
+  width: 44px; height: 44px; border-radius: 50%; object-fit: cover;
+}
 .post-actions {
   display: flex;
   gap: 10px;
